@@ -11,9 +11,6 @@ A simple CLI tool to quickly scaffold a **NestJS backend project** with optional
 
 ## Tech Stack
 * Node.js
-* NestJS CLI
-* child_process
-* CLI argument parsing
 
 ## Future Improvements
 * Interactive CLI prompts

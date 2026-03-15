@@ -1,32 +1,22 @@
 #!/usr/bin/env node
-import {getInstallCommand} from '../utils/checkDbExist.js'
-import { execSync } from "child_process"
 
-const args = process.argv
+import { validateCommand } from '../utils/validateCommand.js'
+import { executeCommand } from '../utils/executeCommand.js'
+import { helper } from '../utils/helper.js'
 
-// const args = process.argv.slice(2)
+const args = process.argv.slice(2)
 
-const projectName = args[2]
-
-let db = null 
-let orm = null
-
-for(const arg of args){
-    if(arg.startsWith('--db=')){
-        db = arg.split('=')[1]
-    }
-    if (arg.startsWith("--orm=")) {
-    orm = arg.split("=")[1]
-    }
+// show help
+if (args.includes('--help') || args.includes('-h')) {
+  console.log(helper())
+  process.exit(0)
 }
 
-execSync(`npx @nestjs/cli new ${projectName} --package-manager npm`, {
-  stdio: "inherit"
-})
+try {
+  const { projectName, db, orm } = validateCommand(args)
+  executeCommand(projectName, db, orm)
+} catch (error) {
+  console.error(`❌ ${error.message}`)
+  process.exit(1)
 
-if(db && orm){
-    const sqlCommand = getInstallCommand(db,orm)
-    execSync(`cd ${projectName} && ${sqlCommand}`, {
-    stdio: "inherit"
-    })
 }

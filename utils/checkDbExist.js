@@ -2,7 +2,7 @@ const databaseDrivers = {
   sqlite: "sqlite3",
   mysql: "mysql2",
   postgres: "pg",
-  pg:"pg"
+  pg: "pg"
 }
 
 const availableOrm = {
@@ -11,22 +11,44 @@ const availableOrm = {
   mongoose: "@nestjs/mongoose mongoose"
 }
 
-export function getInstallCommand(db, orm,) {
+export function getInstallCommand(db, orm) {
+
+  db = db?.toLowerCase().trim()
+  orm = orm?.toLowerCase().trim()
 
   const driver = databaseDrivers[db]
 
-  if(!driver){
-    throw new Error(`Database "${db}" not supported`)
+  if (db && !driver) {
+    console.error(`❌ Unsupported database: ${db}`)
+    process.exit(1)
   }
+
   const ormLib = availableOrm[orm]
 
-  if (!ormLib) {
-    throw new Error(`ORM "${orm}" not supported`)
+  if (orm && !ormLib) {
+    console.error(`❌ Unsupported ORM: ${orm}`)
+    process.exit(1)
   }
 
+  // Prisma special case
   if (orm === "prisma") {
     return `npm install prisma @prisma/client ${driver}`
   }
 
-  return `npm install ${ormLib} ${driver}`
+  // ORM + DB
+  if (orm && db) {
+    return `npm install ${ormLib} ${driver}`
+  }
+
+  // Only DB
+  if (db) {
+    return `npm install ${driver}`
+  }
+
+  // Only ORM
+  if (orm) {
+    return `npm install ${ormLib}`
+  }
+
+  return null
 }
